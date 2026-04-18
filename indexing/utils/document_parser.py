@@ -16,10 +16,10 @@ class ExtractPdf:
             for page in self.pages:
                 self.text += page.extract_text() + "\n"
 
-    def _get_abstract(text: str, length=500):
+    def _get_abstract(self, text: str, length=500):
         """Extracts abstract from a given text.
         """
-
+        
         text_lower = text.lower()
         pos_abstract = text_lower.find('abstract')
         pos_intro = text_lower.find('introduction')
