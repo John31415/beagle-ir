@@ -3,10 +3,10 @@ import spacy
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
-from spacy.cli import download
+import os
 
-# download("en_core_web_sm")
-nltk.download('stopwords')
+nltk_data_path = os.path.join(os.path.dirname(__file__), 'nltk_data')
+nltk.data.path.insert(0, nltk_data_path)
 
 def chunking(tokens: list[str], chunk_size = 500, overlap = 100) -> list[list[str]]:
     """Divides list of tokens in chunks. A chunk contains 'chunk_size' tokens, 'overlap' of which overlap with the previous chunk.
