@@ -4,15 +4,15 @@ import os
 from indexing.utils.text_processor import TextPreprocessor
 from whoosh.qparser import MultifieldParser, OrGroup
 
-def bm25f_retriever(query, top_n_chunks = 500):
+def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:
     """Search de top_n_chunks that satisfy the query
 
     Args:
-        query (_type_): text query.
+        query (str): text query.
         top_n_chunks (int, optional): maximum number of chunks. Defaults to 500.
 
     Returns:
-        _type_: list of unique hashes of de PDF files
+        list[str]: list of unique hashes of de PDF files
     """
     
     tp = TextPreprocessor(query)
