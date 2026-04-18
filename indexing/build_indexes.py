@@ -1,8 +1,8 @@
 from indexing.index_bm25f import IndexBM25F
 from utils.files import read_urls_corpus
 from utils.hash import hash_str
-from indexing.utils.document_parser import ExtractPdf
-from indexing.utils.text_processor import chunking, TextPreprocessor
+from utils.document_parser import ExtractPdf
+from utils.text_processor import chunking, TextPreprocessor
 from indexing.dense_index import DenseIndexer
 
 def build_indexes():
