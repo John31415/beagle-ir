@@ -5,9 +5,6 @@ ARXIV_URL = "http://export.arxiv.org/api/query"
 
 def search_arxiv(query, max_results = 10) -> list[str]:
     """Request files that match the query using the arXiv API.
-
-    Returns:
-        _type_: _description_
     """
     
     params = {
@@ -17,7 +14,7 @@ def search_arxiv(query, max_results = 10) -> list[str]:
         "sortBy": "relevance",
         "sortOrder": "descending"
     }
-    response = requests.get(ARXIV_URL, params=params)
+    response = requests.get(ARXIV_URL, params = params)
     feed = feedparser.parse(response.text)
     results = [entry.id.replace("abs", "pdf") for entry in feed.entries]
     return results
