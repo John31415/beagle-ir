@@ -1,4 +1,8 @@
-from utils.utils import *
+from data_ingestion.utils.robots import RobotsParser
+from data_ingestion.utils.urls import get_urls, download_file
+from data_ingestion.utils.files import count_files, store_url_corpus
+from data_ingestion.utils.arxiv import valid_query_arxiv
+from utils.files import read_urls_corpus
 import time
 
 class ArxivScrapper:
@@ -33,7 +37,7 @@ class ArxivScrapper:
         ))
         return [x[1] for x in valid_urls[:top_k]]
     
-    def _download_pdfs(self, corpus_path: str, corpus_urls: str, crawl_delay: float, limit_pdfs: int):
+    def _download_pdfs(self, corpus_path: str, corpus_urls: str, crawl_delay: float, limit_pdfs = 2000):
         """Download a given list of files at a path with some delay.
 
         Args:
@@ -47,7 +51,8 @@ class ArxivScrapper:
         for url in urls:
             if count_files(corpus_path) >= limit_pdfs:
                 return
-            download_file(corpus_path, url, crawl_delay)
+            if download_file(corpus_path, url, crawl_delay):
+                store_url_corpus(url, "downloaded_urls.txt")
 
     def arxiv_scrapper(self, robots_parser: RobotsParser, urls: list[tuple[str, str]], top_k: int, corpus_path: str):
         """Download the top_k most recent papers from each field obtained from arxiv_crawler

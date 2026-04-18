@@ -1,4 +1,5 @@
-from utils.utils import RobotsParser, get_urls
+from data_ingestion.utils.robots import RobotsParser
+from data_ingestion.utils.urls import get_urls
 
 def arxiv_crawler(robots_parser: RobotsParser) -> list[tuple[str, str]]:
     """It retrieves the URLs of the pages for each specific scientific field from arXiv. 
