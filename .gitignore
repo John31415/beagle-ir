@@ -41,3 +41,4 @@ cache/
 temp/
 
 push_pdfs.sh
+push_index_dir.sh
