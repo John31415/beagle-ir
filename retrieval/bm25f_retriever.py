@@ -12,7 +12,7 @@ def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:
         top_n_chunks (int, optional): maximum number of chunks. Defaults to 500.
 
     Returns:
-        list[str]: list of unique hashes of de PDF files
+        list[str]: list of hashes of de PDF files, possibly repeated
     """
     
     tp = TextPreprocessor(query)
@@ -29,4 +29,4 @@ def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:
         q = parser.parse(clean_query)
         results = searcher.search(q, limit = top_n_chunks)
         pdf_hashes = [hit['pdf_hash'] for hit in results]
-    return list(set(pdf_hashes))
+    return pdf_hashes
