@@ -12,6 +12,9 @@ class ExtractPdf:
             self.metadata = reader.metadata
             if self.metadata is None:
                 self.metadata = {}
+            self.text = ""
+            for page in self.pages:
+                self.text += page.extract_text() + "\n"
 
     def _get_abstract(text: str, length=500):
         """Extracts abstract from a given text.
@@ -38,18 +41,6 @@ class ExtractPdf:
             return result
         return ""
 
-    def _get_text(self) -> str:
-        """Extracts text from a PDF file.
-
-        Returns:
-            str: Text
-        """
-
-        text = ""
-        for page in self.pages:
-            text += page.extract_text() + "\n"
-        return text
-
     def _get_title(self) -> str:
         """Extracts title from the metadata of a PDF file.
 
@@ -75,10 +66,9 @@ class ExtractPdf:
             dict: Authors, Title, Abstract, Text
         """
 
-        text = self._get_text()
         return {
             'title': self._get_title(),
             'authors': self._get_authors(),
-            'abstract': self._get_abstract(text),
-            'text': text
+            'abstract': self._get_abstract(self.text),
+            'text': self.text
         }
