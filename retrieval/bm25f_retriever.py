@@ -20,7 +20,7 @@ def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:
     clean_query = " ".join(tokens_query)
     index_path = os.path.join("indexing", "index_dir")
     ix = open_dir(index_path)
-    with ix.searcher(weighting=BM25F(k1=1.7, b=0.65)) as searcher:
+    with ix.searcher(weighting = BM25F(k1=1.7, b=0.65)) as searcher:
         parser = MultifieldParser(
             ["title", "abstract", "content"], 
             ix.schema, 
