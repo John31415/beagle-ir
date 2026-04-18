@@ -1,7 +1,7 @@
 from whoosh.index import open_dir
 from whoosh.scoring import BM25F
 import os
-from indexing.utils.text_processor import TextPreprocessor
+from utils.text_processor import TextPreprocessor
 from whoosh.qparser import MultifieldParser, OrGroup
 
 def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:

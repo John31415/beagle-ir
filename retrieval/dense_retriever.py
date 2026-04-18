@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import os
 import pickle
-from indexing.utils.text_processor import TextPreprocessor 
+from utils.text_processor import TextPreprocessor 
 
 def dense_retriever(query: str, top_n_chunks = 500) -> list[str]:
     """Search chunks that semantically match the query
