@@ -26,11 +26,6 @@ build/
 .env
 config.local.py
 
-# Logs & DB
-*.log
-*.db
-*.sqlite
-
 # OS
 .DS_Store
 Thumbs.db
