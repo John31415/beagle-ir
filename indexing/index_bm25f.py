@@ -14,8 +14,8 @@ class IndexBM25F:
             id = ID(stored = True, unique = True),
             title = TEXT(stored = True, analyzer = analyzer, field_boost = 2.0),
             abstract = TEXT(stored = True, analyzer = analyzer, field_boost = 2.5),
-            authors = TEXT(stored=True, analyzer = analyzer),
-            content = TEXT(stored=False,  analyzer = analyzer),
+            authors = TEXT(stored = True, analyzer = analyzer),
+            content = TEXT(stored = True,  analyzer = analyzer),
             pdf_hash = STORED()
         )
         index_path = os.path.join("indexing", "index_dir")
