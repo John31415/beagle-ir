@@ -4,7 +4,7 @@ import os
 from utils.text_processor import TextPreprocessor
 from whoosh.qparser import MultifieldParser, OrGroup
 
-def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:
+def bm25f_retriever(query: str, top_n_chunks = 500) -> list[tuple[str, str]]:
     """Search de top_n_chunks that satisfy the query
 
     Args:
@@ -28,5 +28,5 @@ def bm25f_retriever(query: str, top_n_chunks = 500) -> list[str]:
         )
         q = parser.parse(clean_query)
         results = searcher.search(q, limit = top_n_chunks)
-        pdf_hashes = [hit['pdf_hash'] for hit in results]
+        pdf_hashes = [(hit['id'], hit['pdf_hash']) for hit in results]
     return pdf_hashes

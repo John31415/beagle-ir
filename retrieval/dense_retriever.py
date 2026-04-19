@@ -4,7 +4,7 @@ import os
 import pickle
 from utils.text_processor import TextPreprocessor 
 
-def dense_retriever(query: str, top_n_chunks = 500) -> list[str]:
+def dense_retriever(query: str, top_n_chunks = 500) -> list[tuple[str, str]]:
     """Search chunks that semantically match the query
 
     Returns:
@@ -24,5 +24,5 @@ def dense_retriever(query: str, top_n_chunks = 500) -> list[str]:
     query_vector = model.encode([query_processed], convert_to_numpy = True)
     faiss.normalize_L2(query_vector)
     D, I = index.search(query_vector.astype('float32'), top_n_chunks)
-    ranking = [metadata[idx]['pdf_hash'] for idx in I[0] if idx != -1]
+    ranking = [(metadata[idx]['chunk_hash'], metadata[idx]['pdf_hash']) for idx in I[0] if idx != -1]
     return ranking
