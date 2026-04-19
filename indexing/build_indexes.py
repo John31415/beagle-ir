@@ -4,6 +4,7 @@ from utils.hash import hash_str
 from indexing.utils.document_parser import ExtractPdf
 from utils.text_processor import chunking, TextPreprocessor
 from indexing.dense_index import DenseIndexer
+from indexing.persist_chunks import PersistChunk
 
 def build_indexes():
     """Build BM25F index and (embeddings...)
@@ -13,6 +14,7 @@ def build_indexes():
     urls = read_urls_corpus(corpus_urls_path)
     index_bm25f = IndexBM25F()
     dense_index = DenseIndexer()
+    persist_chunks = PersistChunk()
     for i_, url in enumerate(urls):
         print(i_)
         url_hash = hash_str(url)
@@ -20,23 +22,32 @@ def build_indexes():
         ext_pdf = ExtractPdf(pdf_path)
         pdf_fields = ext_pdf.extract_pdf()
         text_processor = TextPreprocessor(pdf_fields['text'])
-        tokens = text_processor.get_normalized_tokens()
-        chunks = chunking(tokens)
-        for (i, chunk) in enumerate(chunks):
+        clean_text = text_processor.get_clean_text()
+        clean_tokens = clean_text.split()
+        clean_chunks = chunking(clean_tokens)
+        for (i, chunk) in enumerate(clean_chunks):
             chunk_hash = hash_str(url_hash + str(i))
-            text = " ".join(chunk)
+            clean_chunk_text = " ".join(chunk)
+            chunk_normalized_tokens = text_processor.get_normalized_tokens(clean_chunk_text)
+            text_normalized = " ".join(chunk_normalized_tokens)
             index_bm25f.add_document({
                 'id': chunk_hash,
                 'title': pdf_fields['title'],
                 'authors': pdf_fields['authors'],
                 'abstract': pdf_fields['abstract'],
-                'text': text,
+                'text': text_normalized,
                 'pdf_hash': url_hash
             })
             dense_index.add_chunk({
-                'text': text,
+                'text': clean_chunk_text,
                 'pdf_hash': url_hash,
                 'chunk_hash': chunk_hash
+            })
+            persist_chunks.persist_chunk({
+                'chunk_hash': chunk_hash,
+                'pdf_hash': url_hash,
+                'title': pdf_fields['title'],
+                'content': clean_chunk_text
             })
     dense_index.save()
 
