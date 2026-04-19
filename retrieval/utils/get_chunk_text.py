@@ -1,7 +1,7 @@
 from whoosh.index import open_dir
 import os
 
-def get_chunk_data(chunk_hash: str) -> str:
+def get_chunk_data(chunk_hash: str) -> dict:
     """Returns the text of the chunk.
     """
 
