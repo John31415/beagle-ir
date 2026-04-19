@@ -78,12 +78,13 @@ class TextPreprocessor:
         self.text = self.clear_text()
         self.text = self._remove_citations()
         return self.text
-        
     
-    def get_normalized_tokens(self) -> list[str]:
+    def get_normalized_tokens(self, text = None) -> list[str]:
         """Normalize text and return tokens.
         """
 
+        if text is not None:
+            self.text = text
         self.text = self.get_clean_text()
         self.tokens = self._tokenize()
         self.tokens = self._remove_stop_words()
