@@ -8,7 +8,7 @@ def dense_retriever(query: str, top_n_chunks = 500) -> list[tuple[str, str]]:
     """Search chunks that semantically match the query
 
     Returns:
-        list[str]: list of hashes of de PDF files, possibly repeated.
+        list[str]: list of (chunk_hash, pdf_hash)
     """
 
     model_name = 'multi-qa-mpnet-base-dot-v1'
