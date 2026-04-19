@@ -73,13 +73,18 @@ class TextPreprocessor:
         stemmer = SnowballStemmer('english')
         return [stemmer.stem(token) for token in self.tokens]
         
+    def get_clean_text(self) -> str:
+        self.text = self.text.lower()
+        self.text = self.clear_text()
+        self.text = self._remove_citations()
+        return self.text
+        
+    
     def get_normalized_tokens(self) -> list[str]:
         """Normalize text and return tokens.
         """
 
-        self.text = self.text.lower()
-        self.text = self.clear_text()
-        self.text = self._remove_citations()
+        self.text = self.get_clean_text()
         self.tokens = self._tokenize()
         self.tokens = self._remove_stop_words()
         self.tokens = self._stemming()
