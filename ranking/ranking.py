@@ -7,12 +7,13 @@ class Ranker:
     """Rank PDF files or chunks matching a query.
     """
 
-    def __init__(self, query: str):
+    def __init__(self, query: str, expanded_query: str):
         self.query = query
+        self.expanded_query = expanded_query
         self.chunk2pdf = {}
 
     def chunk_ranker(self) -> list[str]:
-        bm25f_match = bm25f_retriever(self.query)
+        bm25f_match = bm25f_retriever(self.expanded_query)
         bm25f_chunks = []
         for (chunk, pdf) in bm25f_match:
             self.chunk2pdf[chunk] = pdf
@@ -35,6 +36,6 @@ class Ranker:
                 rank.append(pdf)
                 s.add(pdf)
         if len(rank) < web_search_limit:
-            web_pdfs = web_search(self.query)
+            web_pdfs = web_search(self.expanded_query)
             rank = rrf_fusion([rank, web_pdfs])
         return rank
