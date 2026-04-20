@@ -3,7 +3,7 @@ from indexing.persist_chunks import PersistChunk
 
 def get_chunks_context(query: str, expanded_query: str) -> list[dict]:
     ranker = Ranker(query, expanded_query)
-    chunks_rank = ranker.chunk_ranker()
+    chunks_rank = ranker.chunk_ranker()[:10]
     context = []
     persist_chunk = PersistChunk()
     for chunk in chunks_rank:
