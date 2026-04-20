@@ -6,7 +6,7 @@ from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 
 def ask_llm(query: str) -> str:
-    """Ask an LLLM the user's query with the context retrieved by the system.
+    """Ask an LLM the user's query with the context retrieved by the system.
     """
 
     load_dotenv()
