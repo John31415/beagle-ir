@@ -14,6 +14,7 @@ def retrieval_controller(query: str) -> list[str]:
     return ["corpus/" + pdf + ".pdf" for pdf in pdfs]
 
 def rag_controller(query: str) -> str:
+    add_query(query, datetime.now())
     expander = PRFExpander()
     expanded_query = expander.expand(query)
     llm_answer = ask_llm(query, expanded_query)
