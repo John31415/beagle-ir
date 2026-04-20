@@ -10,7 +10,7 @@ class Ranker:
         self.query = query
         self.chunk2pdf = {}
 
-    def chunk_ranker(self, lists: list[list[str]] = None) -> list[str]:
+    def chunk_ranker(self, lists: list[list[str]] = []) -> list[str]:
         bm25f_match = bm25f_retriever(self.query)
         bm25f_chunks = []
         for (chunk, pdf) in bm25f_match:
@@ -24,10 +24,10 @@ class Ranker:
         rrf_match = rrf_fusion([bm25f_chunks, dense_chunks] + lists)
         return rrf_match
     
-    def pdf_ranker(self) -> list[str]:
+    def pdf_ranker(self, lists: list[list[str]] = []) -> list[str]:
         s = set()
         rank = []
-        chunk_rank = self.chunk_ranker()
+        chunk_rank = self.chunk_ranker(lists)
         for chunk in chunk_rank:
             pdf = self.chunk2pdf[chunk]
             if pdf not in s:
