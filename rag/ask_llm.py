@@ -5,12 +5,12 @@ from groq import Groq
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 
-def ask_llm(query: str) -> str:
+def ask_llm(query: str, expanded_query: str) -> str:
     """Ask an LLM the user's query with the context retrieved by the system.
     """
 
     load_dotenv()
-    context = get_chunks_context(query)
+    context = get_chunks_context(query, expanded_query)
     prompt = create_prompt(query, context)
     try:
         groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))

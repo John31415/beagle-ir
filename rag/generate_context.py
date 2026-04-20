@@ -1,8 +1,8 @@
 from ranking.ranking import Ranker
 from indexing.persist_chunks import PersistChunk
 
-def get_chunks_context(query: str) -> list[dict]:
-    ranker = Ranker(query)
+def get_chunks_context(query: str, expanded_query: str) -> list[dict]:
+    ranker = Ranker(query, expanded_query)
     chunks_rank = ranker.chunk_ranker()
     context = []
     persist_chunk = PersistChunk()
