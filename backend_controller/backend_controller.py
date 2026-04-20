@@ -6,18 +6,24 @@ from recommender.utils.persist_history import add_query
 from datetime import datetime
 
 def retrieval_controller(query: str) -> list[str]:
-    add_query(query, datetime.now())
+    cleaned_query = query.strip()
+    if not cleaned_query:
+        return []
+    add_query(cleaned_query, datetime.now())
     expander = PRFExpander()
-    expanded_query = expander.expand(query)
-    ranker = Ranker(query, expanded_query)
+    expanded_query = expander.expand(cleaned_query)
+    ranker = Ranker(cleaned_query, expanded_query)
     pdfs = ranker.pdf_ranker()
     return ["corpus/" + pdf + ".pdf" for pdf in pdfs]
 
 def rag_controller(query: str) -> str:
-    add_query(query, datetime.now())
+    cleaned_query = query.strip()
+    if not cleaned_query:
+        return ""
+    add_query(cleaned_query, datetime.now())
     expander = PRFExpander()
-    expanded_query = expander.expand(query)
-    llm_answer = ask_llm(query, expanded_query)
+    expanded_query = expander.expand(cleaned_query)
+    llm_answer = ask_llm(cleaned_query, expanded_query)
     return llm_answer
 
 def get_recommendations() -> list[str]:
