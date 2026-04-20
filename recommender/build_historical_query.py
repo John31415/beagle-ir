@@ -1,19 +1,17 @@
 from collections import Counter
 from datetime import datetime
 from math import exp
-from pathlib import Path
 import re
-from recommender.utils.persist_history import add_query, get_all_queries
+from recommender.utils.persist_history import get_all_queries
 
-def build_historical_query(max_terms = 20, tau_days = 30.0) -> str:
-    db_path = Path(__file__).with_name("history.db")
+def build_historical_query(max_terms: int = 20, tau_days: float = 30.0) -> str:
     now = datetime.now()
-    current_query = current_query.strip()
+    history = [(query.strip(), timestamp) for query, timestamp in get_all_queries() if query and query.strip()]
+    if not history:
+        return ""
+    current_query = history[0][0]
     if not current_query:
         return ""
-    history = get_all_queries(db_path)
-    if not history:
-        return current_query
     term_weights = Counter()
     for query, ts in history:
         try:
