@@ -10,7 +10,6 @@ numpy
 faiss-cpu
 sentence_transformers
 feedparser
-huggingface_hub
-groq
+openai
 python-dotenv
 streamlit
