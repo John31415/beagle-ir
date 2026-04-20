@@ -16,11 +16,36 @@ def create_prompt(query: str, context: list[dict]) -> str:
         ### USER QUESTION:
         {query}
         
+      ### CRITICAL RULES:
+
         ### CRITICAL RULES:
-        1. ANALYSIS: Evaluate if the CONTEXT provided above contains enough specific information to answer the question completely.
-        2. LIMITATION: If the context is insufficient, missing details, or irrelevant to the question, respond EXACTLY with: "I'm sorry, but the provided documentation does not contain enough information to answer this question."
-        3. NO OUTSIDE KNOWLEDGE: Do not use any internal knowledge or facts not present in the text above. 
-        4. ACCURACY: If the information is sufficient, provide a direct and concise answer based strictly on the text.
+
+        1. CONTEXT IS ALWAYS REQUIRED:
+        All answers MUST include information from the provided context whenever it exists. Never ignore it.
+
+        2. NO CONTEXTLESS ANSWERS:
+        Even if context is insufficient, you must still use and report whatever is available in it.
+
+        3. KNOWLEDGE AS EXTENSION ONLY:
+        General knowledge can ONLY be used to complement or clarify context, never to replace it.
+
+        4. SUFFICIENCY DOES NOT REMOVE CONTEXT:
+        Even if context is insufficient, you MUST:
+        - extract all relevant information from it
+        - then optionally expand using general knowledge
+
+        5. SOURCE DISCLOSURE:
+        Every piece of information must be labeled as:
+        - [CONTEXT]
+        - [KNOWLEDGE]
+
+        6. FINAL OUTPUT RULE:
+        You MUST always present:
+        - Context-based information first
+        - Then optional knowledge-based expansion (only if needed)
+
+        7. NO KNOWLEDGE-ONLY MODE:
+        It is forbidden to answer using only general knowledge. Context must always appear in the answer if provided.
     """
 
     return prompt
