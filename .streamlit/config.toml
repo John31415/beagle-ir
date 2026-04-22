@@ -1,0 +1,8 @@
+[client]
+# Esto oculta el menú (las tres rayas) y parte de la barra
+showErrorDetails = false
+toolbarMode = "minimal"
+
+[browser]
+# Esto oculta el botón de "re-run" y otras ayudas del navegador
+gatherUsageStats = false
