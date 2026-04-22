@@ -4,12 +4,13 @@ import os
 from utils.text_processor import TextPreprocessor
 from whoosh.qparser import MultifieldParser, OrGroup
 
-def bm25f_retriever(query: str, top_n_chunks = 500) -> list[tuple[str, str]]:
+def bm25f_retriever(query: str, top_n_chunks = 100, relative_threshold = 0.9) -> list[tuple[str, str]]:
     """Search de top_n_chunks that satisfy the query
 
     Args:
         query (str): text query.
-        top_n_chunks (int, optional): maximum number of chunks. Defaults to 500.
+        top_n_chunks (int, optional): maximum number of chunks. Defaults to 100.
+        relative_threshold (float, optional): fraction of the best score used. Defaults to 0.9.
 
     Returns:
         list[tuple[str, str]]: list of (chunk_hash, pdf_hash)
@@ -28,5 +29,16 @@ def bm25f_retriever(query: str, top_n_chunks = 500) -> list[tuple[str, str]]:
         )
         q = parser.parse(clean_query)
         results = searcher.search(q, limit = top_n_chunks)
-        pdf_hashes = [(hit['id'], hit['pdf_hash']) for hit in results]
+        scored_hits = []
+        for hit in results:
+            chunk_hash = hit["id"]
+            pdf_hash = hit["pdf_hash"]
+            score = float(hit.score)
+            scored_hits.append((chunk_hash, pdf_hash, score))
+        if not scored_hits:
+            return []
+        score_threshold = scored_hits[0][2] * relative_threshold
+        filtered = [(chunk_hash, pdf_hash, score) for (chunk_hash, pdf_hash, score) in scored_hits if score >= score_threshold]
+        filtered.sort(key = lambda x: x[2], reverse = True)
+        pdf_hashes = [(chunk_hash, pdf_hash) for (chunk_hash, pdf_hash, _) in filtered[:top_n_chunks]]
     return pdf_hashes
