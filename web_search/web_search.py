@@ -4,6 +4,7 @@ from data_ingestion.utils.files import store_url_corpus
 from data_ingestion.utils.urls import download_file
 from data_ingestion.utils.robots import RobotsParser
 from utils.hash import hash_str
+from indexing.build_indexes import add2index
 
 def _download(pdfs_urls: list[str], crawl_delay: int):
     for url in pdfs_urls:
@@ -24,4 +25,5 @@ def web_search(query: str, search_limit: int) -> list[str]:
     pdfs_urls = search_arxiv(query_processed, search_limit)
     _download(pdfs_urls, crawl_delay)
     pdfs_hash = [hash_str(url) for url in pdfs_urls]
+    add2index(pdfs_urls)
     return pdfs_hash
