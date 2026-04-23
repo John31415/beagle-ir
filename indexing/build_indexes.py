@@ -6,12 +6,7 @@ from utils.text_processor import chunking, TextPreprocessor
 from indexing.dense_index import DenseIndexer
 from indexing.persist_chunks import PersistChunk
 
-def build_indexes():
-    """Build BM25F index and (embeddings...)
-    """
-
-    corpus_urls_path = "downloaded_urls.txt"
-    urls = read_urls_corpus(corpus_urls_path)
+def add2index(urls: list[str]):
     index_bm25f = IndexBM25F()
     dense_index = DenseIndexer()
     persist_chunks = PersistChunk()
@@ -51,4 +46,13 @@ def build_indexes():
             })
     dense_index.save()
 
-build_indexes()
+
+def build_indexes():
+    """Build BM25F and dense embeddings index.
+    """
+
+    corpus_urls_path = "downloaded_urls.txt"
+    urls = read_urls_corpus(corpus_urls_path)
+    add2index(urls)
+
+# build_indexes()
