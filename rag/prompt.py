@@ -1,4 +1,4 @@
-def create_prompt(query: str, context: list[dict]) -> str:
+def create_prompt(query: str, context: list[dict]) -> tuple[str, str]:
     text_context = ""
     for (i, chunk_data) in enumerate(context):
         title = chunk_data['title']
@@ -6,17 +6,9 @@ def create_prompt(query: str, context: list[dict]) -> str:
         text_context += f"Document #{i + 1}\n"
         text_context += title + "\n"
         text_context += content + "\n\n"
-
-    prompt = f"""
+    text_context = text_context[:15000]
+    prompt_system = """
         You are a factual assistant. Your task is to answer the user's question using ONLY the provided context.
-
-        ### CONTEXT:
-        {text_context}
-        
-        ### USER QUESTION:
-        {query}
-        
-      ### CRITICAL RULES:
 
         ### CRITICAL RULES:
 
@@ -46,6 +38,12 @@ def create_prompt(query: str, context: list[dict]) -> str:
 
         7. NO KNOWLEDGE-ONLY MODE:
         It is forbidden to answer using only general knowledge. Context must always appear in the answer if provided.
+    """    
+    prompt_user = f"""
+        ### CONTEXT:
+        {text_context}
+        
+        ### USER QUESTION:
+        {query}
     """
-
-    return prompt
+    return (prompt_system, prompt_user)
