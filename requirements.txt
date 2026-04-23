@@ -10,6 +10,6 @@ numpy
 faiss-cpu
 sentence_transformers
 feedparser
-huggingface_hub
 python-dotenv
 streamlit
+cloudflare
