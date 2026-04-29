@@ -46,8 +46,20 @@ Before running the project, make sure you have:
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/John31415/beagle-ir.git
 cd beagle-ir
+```
+
+Environment Setup
+
+```bash
+# Linux / macOS
+python3 -m venv venv
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
 Install the project dependencies:
