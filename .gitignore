@@ -37,3 +37,11 @@ temp/
 
 push_pdfs.sh
 push_index_dir.sh
+
+# PDF
+.aux
+.fdb_latexmk
+.fls
+.log
+.out
+.gz
