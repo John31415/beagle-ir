@@ -5,7 +5,7 @@ pypdf2
 spacy
 nltk
 whoosh
-https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+# https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 numpy
 faiss-cpu
 sentence_transformers
@@ -13,3 +13,6 @@ feedparser
 python-dotenv
 streamlit
 cloudflare
+scikit-learn 
+wordcloud 
+matplotlib
