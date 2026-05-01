@@ -12,3 +12,5 @@ def create_corpus():
     print(len(field_urls), " Field URLs obtained.")
     scrapper = ArxivScrapper()
     scrapper.arxiv_scrapper(robots_parser, field_urls, 25, "corpus")
+
+# create_corpus()
