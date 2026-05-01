@@ -85,8 +85,10 @@ By default, the app is available at: http://localhost:8501
 ├── backend_controller   # Orchestrates system workflows and coordinates module interactions
 ├── corpus               # Storage for raw scientific documents
 ├── data_ingestion       # Crawling, scraping, and preprocessing pipelines for data acquisition
+├── docs                 # PDF and LaTeX, project documentation
 ├── frontend             # Streamlit-based user interface and visualization layer
 ├── indexing             # Construction and persistence of sparse (BM25F) and dense indexes
+├── pdf_stats            # Corpus analyzer, general structure of PDF files
 ├── query_expansion      # Techniques for enhancing queries using dense representations
 ├── rag                  # Retrieval-Augmented Generation pipeline (context building + LLM prompting)
 ├── ranking              # Result ranking, scoring, and fusion strategies
