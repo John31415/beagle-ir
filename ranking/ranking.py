@@ -36,6 +36,6 @@ class Ranker:
                 rank.append(pdf)
                 s.add(pdf)
         if len(rank) < rank_limit:
-            web_pdfs = web_search(self.query, rank_limit - len(rank))
+            web_pdfs = web_search(self.query, min(3, rank_limit - len(rank)))
             rank = rrf_fusion([rank, web_pdfs])
         return rank[:rank_limit]
