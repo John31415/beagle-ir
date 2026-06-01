@@ -17,5 +17,6 @@ def add_query(query: str, dt: datetime, db_path = DEFAULT_HISTORY_DB) -> None:
 
 def get_all_queries(db_path = DEFAULT_HISTORY_DB) -> list[tuple[str, str]]:
     with sqlite3.connect(db_path) as conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS history (query TEXT, timestamp TEXT)")
         cursor = conn.execute("SELECT query, timestamp FROM history ORDER BY timestamp DESC")
         return cursor.fetchall()
