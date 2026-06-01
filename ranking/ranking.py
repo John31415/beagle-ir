@@ -26,7 +26,7 @@ class Ranker:
         rrf_match = rrf_fusion([bm25f_chunks, dense_chunks])
         return rrf_match
     
-    def pdf_ranker(self, rank_limit = 20) -> list[str]:
+    def pdf_ranker(self, rank_limit = 20, active_web_search = True) -> list[str]:
         s = set()
         rank = []
         chunk_rank = self.chunk_ranker()
@@ -36,6 +36,6 @@ class Ranker:
                 rank.append(pdf)
                 s.add(pdf)
         if len(rank) < rank_limit:
-            web_pdfs = web_search(self.query, min(3, rank_limit - len(rank)))
+            web_pdfs = web_search(self.query, min(3, rank_limit - len(rank))) if active_web_search else []
             rank = rrf_fusion([rank, web_pdfs])
         return rank[:rank_limit]

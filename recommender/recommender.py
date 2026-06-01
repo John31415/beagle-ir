@@ -8,5 +8,5 @@ def recommender() -> list[str]:
         return []
     expanded_query = expand_query_dense(query)
     ranker = Ranker(query, expanded_query)
-    pdfs = ranker.pdf_ranker()
+    pdfs = ranker.pdf_ranker(active_web_search = False)
     return pdfs
