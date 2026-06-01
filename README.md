@@ -79,6 +79,23 @@ streamlit run frontend/interface.py
 After executing the command, Streamlit will start a local server and open the application in your browser.  
 By default, the app is available at: http://localhost:8501
 
+## Advanced Feature: Corpus Analyzer (Visualizations)
+
+The project includes a specialized script, `corpus_analyzer.py` (located in `pdf_stats`), which generates word clouds and visual statistics from the processed documents. 
+
+Because the `wordcloud` library can be heavy and requires specific system C-compilers to build during the Docker installation, it is commented out by default to keep the core image lightweight.
+
+If you want to use this analytics feature, follow these steps **before** building the Docker image:
+
+1. Open your `requirements.txt` file in the root directory.
+2. Locate the `# wordcloud` line and **uncomment** it (remove the `#`).
+3. Save the file.
+4. Install:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Project Structure
 
 ```
