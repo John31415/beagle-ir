@@ -5,6 +5,7 @@ import streamlit as st
 from backend_controller.backend_controller import get_recommendations, rag_controller, retrieval_controller
 from frontend.utils.pdf_utils import display_cropped_pdf, get_document_name, get_download_payload, resolve_document_path
 from theme import render_empty_state, render_hero_panel, render_query_summary, render_section_intro
+import markdown
 
 def initialize_state() -> None:
     defaults = {
@@ -342,13 +343,16 @@ def _render_chat_message(message: dict[str, str]) -> None:
     role = "user" if message.get("role") == "user" else "assistant"
     speaker = "You" if role == "user" else "Beagle"
     timestamp = message.get("timestamp", "")
-    content = escape(message.get("content", "")).replace("\n", "<br>")
+    raw_content = message.get("content", "")
+    content_html = markdown.markdown(
+        raw_content, extensions=["fenced_code", "tables"]
+    )
     st.markdown(
         f"""
         <div class="message-row {role}">
             <div class="message-bubble">
                 <div class="message-meta">{escape(speaker)} | {escape(timestamp)}</div>
-                <div>{content}</div>
+                <div>{content_html}</div>
             </div>
         </div>
         """,
