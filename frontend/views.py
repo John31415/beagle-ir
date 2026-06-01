@@ -292,15 +292,19 @@ def render_document_list(
             """,
             unsafe_allow_html=True,
         )
+        size_in_mb = resolved_path.stat().st_size / (1024 * 1024)
         preview_col, download_col, spacer_col = st.columns([1.15, 1.15, 3.7])
         with preview_col:
-            if st.button(
-                "Hide preview" if is_preview_open else "Preview",
-                key=f"preview_toggle::{section_key}::{index}",
-                use_container_width=True,
-            ):
-                st.session_state[preview_key] = not is_preview_open
-                st.rerun()
+            if size_in_mb < 1.5:
+                if st.button(
+                    "Hide preview" if is_preview_open else "Preview",
+                    key=f"preview_toggle::{section_key}::{index}",
+                    use_container_width=True,
+                ):
+                    st.session_state[preview_key] = not is_preview_open
+                    st.rerun()
+            else:
+                st.button("No Preview", disabled=True, key=f"preview_disabled::{section_key}::{index}", use_container_width=True)
         with download_col:
             download_payload = get_download_payload(resolved_path)
             if download_payload is None:
