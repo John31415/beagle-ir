@@ -41,6 +41,38 @@ Before running the project, make sure you have:
 - `pip` available in your environment
 - The dependencies listed in `requirements.txt`
 
+## Configuration & Environment Variables
+
+This project uses Cloudflare Workers AI. To run the LLM functions, you need to configure your Cloudflare API credentials. 
+
+### 1. Get Your Credentials
+
+#### Cloudflare Account ID (`CF_ID`)
+1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/).
+2. Select your account or account home.
+3. On the right-hand sidebar (or near the bottom of the page), look for the **Account ID** section.
+4. Copy the string of characters.
+
+#### Cloudflare API Token (`CF_TOKEN`)
+1. In the top-right corner of the Cloudflare Dashboard, click your **User Profile icon** and select **My Profile**.
+2. Go to **API Tokens** from the left menu.
+3. Click **Create Token**.
+4. Scroll down to **Custom Token** and click **Get Started**.
+5. Set up the token with the following settings:
+   * **Token name:** `Workers AI Access` (or any preferred name)
+   * **Permissions:** Select `Account` | `Workers AI` | `Edit`
+6. Click **Continue to summary**, then click **Create Token**.
+7. Copy the generated token immediately (it will not be shown again).
+
+### 2. Setup the Environment File
+
+Create a file named `.env` in the **root directory** of the project and add your credentials as follows:
+
+```env
+CF_TOKEN=your_cloudflare_api_token_here
+CF_ID=your_cloudflare_account_id_here
+```
+
 ## Installation
 
 Clone the repository:
