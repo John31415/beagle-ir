@@ -128,6 +128,43 @@ If you want to use this analytics feature, follow these steps **before** buildin
 pip install -r requirements.txt
 ```
 
+## Docker Setup
+
+This project is configured to run in an isolated and reproducible environment using Docker. Core system dependencies are encapsulated within the image, while heavy data (such as the corpus and indices) is managed externally.
+
+### Prerequisites
+* **Docker Desktop** (with WSL 2 integrated if you are on Windows).
+* **Git LFS** installed on your local machine.
+
+---
+
+### Quick Start Guide
+
+**1. Build the image:**
+From the root of the repository (where the `Dockerfile` is located), run:
+```bash
+docker build -t beagle-ir:latest .
+```
+
+**2. Run the application (Basic Mode):**
+
+```bash
+docker run --rm -p 8501:8501 beagle-ir:latest
+```
+
+Once active, open your web browser and go to: http://localhost:8501
+
+**Initialize Data (Ingestion & Indexing):**
+If you want to start from scratch:
+
+```bash
+# Download and prepare the document corpus
+docker run --rm beagle-ir:latest python -m data_ingestion.arxiv_corpus
+
+# Build the BM25F and dense vector indices
+docker run --rm beagle-ir:latest python -m indexing.build_index
+```
+
 ## Project Structure
 
 ```
