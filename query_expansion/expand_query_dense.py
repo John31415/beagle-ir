@@ -6,6 +6,7 @@ def expand_query_dense(query: str, k = 5, similarity_threshold = 0.70, alpha = 1
     """Expands the query into vector space. Returns a normalized embedding.
     """
 
+    print("Expanding query")
     q_vec = embed(query)
     retrieved = dense_retriever(query, q_vec.reshape(1, -1), k)
     if not retrieved:

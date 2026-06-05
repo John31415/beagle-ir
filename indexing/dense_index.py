@@ -25,6 +25,7 @@ class DenseIndexer:
             self.current_pos = 0
 
     def add_chunk(self, chunk_data: dict):
+        print("Indexing with FAISS")
         embedding = self.model.encode([chunk_data['text']], convert_to_numpy=True)
         faiss.normalize_L2(embedding)
         self.index.add(embedding.astype('float32'))

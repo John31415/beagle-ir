@@ -16,6 +16,7 @@ def web_search(query: str, search_limit: int) -> list[str]:
     """Method for finding articles that match the query on the web.
     """
 
+    print("Searching the web")
     robots_parser = RobotsParser("https://arxiv.org/robots.txt")
     robots_parser.parse_robots_txt()
     crawl_delay = robots_parser.get_delay()

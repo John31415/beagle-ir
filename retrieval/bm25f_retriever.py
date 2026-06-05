@@ -16,6 +16,7 @@ def bm25f_retriever(query: str, top_n_chunks = 100, relative_threshold = 0.9) ->
         list[tuple[str, str]]: list of (chunk_hash, pdf_hash)
     """
     
+    print("BM25F retriever")
     tp = TextPreprocessor(query)
     tokens_query = tp.get_normalized_tokens()
     clean_query = " ".join(tokens_query)

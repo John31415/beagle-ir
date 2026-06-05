@@ -7,6 +7,7 @@ from indexing.dense_index import DenseIndexer
 from indexing.persist_chunks import PersistChunk
 
 def add2index(urls: list[str]):
+    print("Indexing documents")
     index_bm25f = IndexBM25F()
     dense_index = DenseIndexer()
     persist_chunks = PersistChunk()

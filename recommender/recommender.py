@@ -3,6 +3,7 @@ from query_expansion.expand_query_dense import expand_query_dense
 from ranking.ranking import Ranker
 
 def recommender() -> list[str]:
+    print("Recommender activated")
     query = build_historical_query()
     if not query:
         return []

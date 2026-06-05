@@ -10,6 +10,7 @@ def dense_retriever(query: str, vector = None, top_n_chunks = 100, chunk_similar
         list[str]: list of (chunk_hash, pdf_hash)
     """
 
+    print("Dense embeddings retriever")
     save_dir = "indexing/dense_index"
     index = faiss.read_index(os.path.join(save_dir, "vector_index.faiss"))
     metadata = None

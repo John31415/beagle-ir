@@ -4,6 +4,7 @@ def rrf_fusion(lists: list[list[str]], k = 60) -> list[str]:
     """Reciprocal Rank Funsion for combining search results
     """
 
+    print("Reciprocal Rank Fusion")
     scores = defaultdict(float)
     for i in range(len(lists)):
         for rank, doc_id in enumerate(lists[i]):

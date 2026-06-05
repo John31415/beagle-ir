@@ -27,6 +27,7 @@ class IndexBM25F:
         """Add document to index.
         """
 
+        print("Indexing with BM25F")
         index_path = os.path.join("indexing", "index_dir")
         ix = open_dir(index_path)
         writer = ix.writer()

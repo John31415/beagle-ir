@@ -7,6 +7,7 @@ import os
 from cloudflare import Cloudflare
 
 def ask_llm(query: str, expanded_query: str) -> str:
+    print("Asking the LLM")
     env_path = Path(__file__).resolve().parent.parent / ".env"
     load_dotenv(dotenv_path = env_path)
     context = get_chunks_context(query, expanded_query)
