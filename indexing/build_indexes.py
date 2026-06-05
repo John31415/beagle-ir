@@ -56,3 +56,4 @@ def build_indexes():
     add2index(urls)
 
 # build_indexes()
+# python3 -m indexing.build_indexes

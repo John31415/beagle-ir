@@ -14,3 +14,4 @@ def create_corpus():
     scrapper.arxiv_scrapper(robots_parser, field_urls, 25, "corpus")
 
 # create_corpus()
+# python3 -m data_ingestion.arxiv_corpus
