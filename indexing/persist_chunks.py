@@ -58,3 +58,11 @@ class PersistChunk:
             if row:
                 return dict(row)
             return None
+        
+    def get_title_by_pdf_hash(self, pdf_hash: str) -> Optional[str]:
+        query = 'SELECT title FROM chunks WHERE pdf_hash = ? LIMIT 1'
+        with sqlite3.connect(self.DB_NAME) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, (pdf_hash,))
+            row = cursor.fetchone()
+            return row[0] if row else None

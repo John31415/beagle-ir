@@ -319,7 +319,7 @@ def render_document_list(
                 st.download_button(
                     "Download",
                     data=download_payload,
-                    file_name=doc_name,
+                    file_name=document_path,
                     mime="application/pdf",
                     key=f"download::{section_key}::{index}",
                     use_container_width=True,

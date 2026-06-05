@@ -2,6 +2,9 @@ import base64
 from pathlib import Path
 import streamlit as st
 import streamlit.components.v1 as components
+from indexing.persist_chunks import PersistChunk
+
+persist_chunk = PersistChunk()
 
 @st.cache_data(show_spinner = False)
 def read_pdf_bytes(file_path: str) -> bytes:
@@ -27,10 +30,12 @@ def resolve_document_path(project_root: Path, document_path: str) -> Path:
     return project_root / candidate
 
 def get_document_name(document_path: str | Path) -> str:
-    """Extract the filename from a document path.
-    """
-
-    return Path(document_path).name
+    """Extract the filename or database title from a document path."""
+    
+    path_obj = Path(document_path)
+    pdf_hash = path_obj.stem
+    title = persist_chunk.get_title_by_pdf_hash(pdf_hash)
+    return title if title else path_obj.name
 
 def get_download_payload(file_path: str | Path) -> bytes | None:
     """Retrieve the raw bytes payload of a file for download.
