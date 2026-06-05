@@ -1,5 +1,5 @@
 from rag.generate_context import get_chunks_context
-from rag.prompt import create_prompt
+from rag.prompt import create_prompt, add_references
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -25,4 +25,6 @@ def ask_llm(query: str, expanded_query: str) -> str:
         ],
         max_tokens=512,
     )
-    return response['response']
+    response = response['response']
+    response += add_references(context)
+    return response

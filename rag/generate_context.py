@@ -10,6 +10,7 @@ def get_chunks_context(query: str, expanded_query: str) -> list[dict]:
         chunk_data = persist_chunk.get_chunk_by_hash(chunk)
         context.append({
             'title': chunk_data['title'],
-            'content': chunk_data['content']
+            'content': chunk_data['content'],
+            'pdf_hash': chunk_data['pdf_hash']
         })
     return context

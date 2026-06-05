@@ -51,3 +51,36 @@ def create_prompt(query: str, context: list[dict]) -> tuple[str, str]:
         {query}
     """
     return (prompt_system, prompt_user)
+
+def add_references(context: list[dict]) -> str:
+    """Add PDF references to LLM answer
+
+    Args:
+        context (list[dict]): retrieved context
+
+    Returns:
+        str: References in Markdown format
+    """
+
+    import os
+    import base64
+    from html import escape
+
+    if not context:
+        return ""
+    seen_pdfs = {(c["pdf_hash"], c.get("title", c["pdf_hash"] + ".pdf").strip()) 
+                for c in context if c.get("pdf_hash")}
+    if not seen_pdfs:
+        return ""
+    markdown_lines = ["\n### References:", ""]
+    for (pdf_hash, title) in sorted(seen_pdfs, key=lambda x: x[1]):
+        pdf_path = f"corpus/{pdf_hash}.pdf"
+        if os.path.exists(pdf_path):
+            with open(pdf_path, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode('utf-8')
+            clean_title = escape(title)
+            link_html = f'- <a href="data:application/pdf;base64,{b64}" download="{pdf_path}.pdf">{clean_title}</a>'
+            markdown_lines.append(link_html)
+        else:
+            markdown_lines.append(f"- {escape(title)} (Archivo no disponible)")
+    return "\n".join(markdown_lines)
