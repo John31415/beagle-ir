@@ -20,11 +20,17 @@
 
 %--------------------------------------------------
 \begin{abstract}
-Este documento presenta el diseño e implementación de un sistema de recuperación de información orientado 
-al dominio de la investigación científica. 
-El sistema integra adquisición de datos desde arXiv, indexación léxica y semántica, expansión de consultas, 
-ranking híbrido, generación aumentada por recuperación (RAG), sistema de recomendación 
-y una interfaz visual para la interacción con el usuario.
+
+Este documento presenta el diseño e implementación de un sistema de recuperación de información orientado al dominio 
+de la investigación científica. 
+El sistema integra adquisición de datos desde arXiv, indexación léxica y semántica, 
+expansión de consultas, ranking híbrido, generación aumentada por recuperación, 
+recomendaciones personalizadas y una interfaz visual para usuarios. 
+La arquitectura combina modelos clásicos y representaciones vectoriales para mejorar la relevancia de los resultados y 
+facilitar la exploración de literatura académica. 
+Además, incorpora evaluación experimental mediante métricas estándar, permitiendo analizar precisión, 
+cobertura y utilidad del sistema. 
+Los resultados evidencian una solución modular, extensible y adecuada para apoyar búsquedas científicas.
 
 \keywords{Recuperación de información \and BM25F \and Embeddings \and RAG \and arXiv}
 \end{abstract}
@@ -171,13 +177,14 @@ ajustada por la longitud del documento y la rareza global de los términos en el
 BM25F extiende este modelo incorporando la estructura interna del documento mediante \textit{fields} (campos), 
 permitiendo ponderar de forma diferenciada secciones como título, resumen y contenido.
 
-En BM25F, la frecuencia efectiva de un término se define como una combinación ponderada por campo:
+En BM25F, la frecuencia efectiva de un término se define como una combinación ponderada por campo \eqref{eq:bm25f}.
 
-\[
-f(t, D) = \sum_{c \in C} w_c \cdot \frac{f(t, D_c)}{1 - b_c + b_c \cdot \frac{|D_c|}{avgdl_c}}
-\]
+\begin{equation}
+    f(t, D) = \sum_{c \in C} w_c \cdot \frac{f(t, D_c)}{1 - b_c + b_c \cdot \frac{|D_c|}{avgdl_c}}
+    \label{eq:bm25f}
+\end{equation}
 
-donde $t$ representa el término de la consulta, $D$ el documento completo y $C$ el conjunto de campos del documento 
+Donde $t$ representa el término de la consulta, $D$ el documento completo y $C$ el conjunto de campos del documento 
 (por ejemplo, \textit{title}, \textit{abstract} y \textit{content}). 
 Para cada campo $c$, $f(t, D_c)$ denota la frecuencia del término $t$ dentro de ese campo específico. 
 El parámetro $w_c$ es el peso asignado al campo $c$, que controla su importancia relativa en el cálculo final. 
@@ -207,17 +214,20 @@ lo que permite una recuperación eficiente en espacios de alta dimensionalidad.
 
 El modelo de recuperación semántica se basa en la comparación entre vectores normalizados en un espacio euclidiano. 
 Dado un embedding de consulta $q \in \mathbb{R}^d$ y un embedding de documento $d_i \in \mathbb{R}^d$, 
-ambos normalizados, la similitud se calcula mediante el producto interno:
+ambos normalizados, la similitud se calcula mediante el producto interno \eqref{eq:similitud}.
 
-\[
-\text{sim}(q, d_i) = q \cdot d_i = \sum_{j=1}^{d} q_j \cdot d_{i,j}
-\]
+\begin{equation}
+    \text{sim}(q, d_i) = q \cdot d_i = \sum_{j=1}^{d} q_j \cdot d_{i,j}
+    \label{eq:similitud}
+\end{equation}
 
-Dado que los vectores están normalizados a norma unitaria, esta operación es equivalente a la similitud del coseno:
+Dado que los vectores están normalizados a norma unitaria, esta operación es equivalente a la similitud 
+del coseno \eqref{eq:coseno}.
 
-\[
-\text{sim}(q, d_i) = \cos(\theta) = \frac{q \cdot d_i}{\|q\| \|d_i\|}
-\]
+\begin{equation}
+    \text{sim}(q, d_i) = \cos(\theta) = \frac{q \cdot d_i}{\|q\| \|d_i\|}
+    \label{eq:coseno}
+\end{equation}
 
 El proceso de recuperación consiste en resolver el problema de \textit{nearest neighbor search}, 
 es decir, encontrar los $k$ vectores $d_i$ que maximizan $\text{sim}(q, d_i)$. 
@@ -275,13 +285,15 @@ en posiciones altas en múltiples listas, generando una ordenación final más r
 menos dependiente de un único modelo de recuperación.
 
 RRF \cite{rrf} asigna a cada documento una puntuación en función de su posición en cada ranking. 
-Dado un conjunto de rankings $R = \{r_1, r_2, ..., r_m\}$, la puntuación final de un documento $d$ se define como:
+Dado un conjunto de rankings $R = \{r_1, r_2, ..., r_m\}$, la puntuación final de un documento $d$ 
+se define como en la ecuación \eqref{eq:rrf}.
 
-\[
-\text{RRF}(d) = \sum_{r \in R} \frac{1}{k + \text{rank}_r(d)}
-\]
+\begin{equation}
+    \text{RRF}(d) = \sum_{r \in R} \frac{1}{k + \text{rank}_r(d)}
+    \label{eq:rrf}
+\end{equation}
 
-donde $\text{rank}_r(d)$ representa la posición del documento $d$ en el ranking $r$, y $k$ es una constante positiva 
+Donde $\text{rank}_r(d)$ representa la posición del documento $d$ en el ranking $r$, y $k$ es una constante positiva 
 (usualmente $k=60$) que controla la caída de contribución de posiciones inferiores. 
 Este mecanismo favorece la consistencia entre rankings, 
 reforzando documentos recurrentemente bien posicionados sin penalizar su ausencia en alguna de las listas.
