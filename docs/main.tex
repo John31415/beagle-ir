@@ -69,16 +69,17 @@ actualización constante y capacidad de escalabilidad.
 
 \subsection{Crawling}
 
-El proceso de \textit{crawling} se encarga de la exploración sistemática de recursos web 
-con el objetivo de localizar documentos y enlaces relevantes dentro del dominio de interés. 
-En este sistema, la exploración se realiza respetando estrictamente las políticas definidas en 
-el archivo \texttt{robots.txt} de arXiv, considerando tanto las rutas permitidas (\textit{allowed URLs}) 
-como las restricciones de frecuencia de acceso (\textit{crawl\_delay}), 
+El proceso de \textit{crawling} se encarga de la exploración sistemática de recursos web
+con el objetivo de localizar documentos y enlaces relevantes dentro del dominio de interés.
+En este sistema, la exploración se realiza respetando estrictamente las políticas definidas en
+el archivo \texttt{robots.txt} de arXiv, considerando tanto las rutas permitidas (\textit{allowed URLs})
+como las restricciones de frecuencia de acceso (\textit{crawl\_delay}),
 con el fin de garantizar un comportamiento ético y conforme a las normas del servidor.
 
-A partir de la página inicial del sitio, el sistema identifica y extrae URLs candidatas, 
-filtrando posteriormente aquellas que cumplen con las políticas de acceso y que corresponden a contenido reciente, 
-típicamente asociado a rutas con el patrón \texttt{/recent}.
+A partir de la página inicial del sitio, el sistema identifica y extrae URLs candidatas,
+priorizando aquellas que cumplen con las políticas de acceso y que corresponden a contenido reciente,
+típicamente asociado a rutas con el patrón \texttt{/recent} y \texttt{/new}, 
+y acotando la exploración mediante un límite de profundidad configurable y un número máximo de enlaces a encontrar.
 
 \subsection{Scraping}
 
@@ -276,37 +277,72 @@ lo que garantiza un nivel mínimo de coherencia semántica.
 
 De este modo, ambos subsistemas entregan conjuntos filtrados de alta relevancia que sirven como entrada al proceso de fusión y ranking final.
 
-\subsection{Ranking algorítmico (RRF)}
+\subsection{Ranking Algorítmico (RRF Modificado con Confianza y Recencia)}
 
-El sistema utiliza \textit{Reciprocal Rank Fusion} (RRF) como estrategia de fusión de rankings para integrar 
-los resultados provenientes de los recuperadores léxico (BM25F) y semántico. 
-Este método no requiere que los rankings compartan el mismo conjunto de documentos y prioriza aquellos que aparecen 
-en posiciones altas en múltiples listas, generando una ordenación final más robusta y 
-menos dependiente de un único modelo de recuperación.
+Para fusionar los resultados de los recuperadores léxico y semántico, 
+el sistema emplea una variante de \textit{Reciprocal Rank Fusion} (RRF) que incorpora tanto la 
+confianza de los recuperadores como la recencia de los documentos. 
+A diferencia del RRF clásico, que considera únicamente la posición de cada resultado, 
+esta formulación pondera además la similitud obtenida por cada método y, 
+en la fase final de ordenación de documentos PDF, aplica una penalización temporal.
 
-RRF \cite{rrf} asigna a cada documento una puntuación en función de su posición en cada ranking. 
-Dado un conjunto de rankings $R = \{r_1, r_2, ..., r_m\}$, la puntuación final de un documento $d$ 
-se define como en la ecuación \eqref{eq:rrf}.
+La puntuación base de un elemento $d$ se calcula en \eqref{eq:rrf_base}.
 
 \begin{equation}
-    \text{RRF}(d) = \sum_{r \in R} \frac{1}{k + \text{rank}_r(d)}
-    \label{eq:rrf}
+    \text{RRF}_{\text{base}}(d) =
+    \sum_{r \in R}
+    \frac{1 + \ln(1 + \max(0, S_r(d)))}
+         {k + \text{rank}_r(d)}
+    \label{eq:rrf_base}
 \end{equation}
 
-Donde $\text{rank}_r(d)$ representa la posición del documento $d$ en el ranking $r$, y $k$ es una constante positiva 
-(usualmente $k=60$) que controla la caída de contribución de posiciones inferiores. 
-Este mecanismo favorece la consistencia entre rankings, 
-reforzando documentos recurrentemente bien posicionados sin penalizar su ausencia en alguna de las listas.
+Donde $\text{rank}_r(d)$ representa la posición de $d$ en el ranking $r$, $S_r(d)$ 
+es la puntuación de similitud asignada por el recuperador correspondiente y $k=60$ es la constante de suavizado. 
+El término logarítmico permite incorporar la confianza de cada recuperador sin que puntuaciones 
+extremadamente altas dominen el proceso de fusión.
 
-\subsection{Posicionamiento visual}
+Para la ordenación de documentos completos, se introduce una penalización basada en la antigüedad. 
+La edad relativa del documento, expresada en meses, se define en \eqref{eq:antiquity}.
 
-Los resultados recuperados se presentan al usuario en orden descendente de relevancia, 
-priorizando aquellos documentos con mayor puntuación final.
-Adicionalmente, el sistema permite no solo la descarga de los documentos PDF recuperados, 
-sino también una previsualización (\textit{preview}) de su contenido, lo que facilita una inspección rápida 
-sin necesidad de abandonar el entorno de consulta. 
-Esta estructura mejora la exploración interactiva del corpus y permite al usuario evaluar la pertinencia 
-de los resultados de forma más eficiente.
+\begin{equation}
+    A(d)=
+    \max\left(
+        0,
+        \frac{T_{\text{actual}}-T_{\text{doc}}(d)}
+             {30.4375}
+    \right)
+    \label{eq:antiquity}
+\end{equation}
+
+Donde $T_{\text{actual}}$ es la fecha de ejecución de la consulta y $T_{\text{doc}}(d)$ corresponde a 
+la fecha extraída de los metadatos del PDF. 
+A partir de esta antigüedad se calcula el factor de recencia \eqref{eq:penalty}.
+
+\begin{equation}
+    P(d)=
+    \frac{1}
+         {1+\log_2(1+A(d))}
+    \label{eq:penalty}
+\end{equation}
+
+Finalmente, la puntuación utilizada para la clasificación depende del nivel de agregación considerado \eqref{eq:rrf_final}.
+
+\begin{equation}
+    \text{RRF}_{\text{final}}(d)=
+    \begin{cases}
+        \text{RRF}_{\text{base}}(d)\times P(d),
+        & \text{si } d \text{ es un documento completo} \\
+        \text{RRF}_{\text{base}}(d),
+        & \text{si } d \text{ es un fragmento}
+    \end{cases}
+    \label{eq:rrf_final}
+\end{equation}
+
+Esta modificación produce dos efectos principales: 
+(i) una ponderación más precisa de la relevancia al considerar la confianza de los recuperadores 
+mediante $S_r(d)$, y (ii) una atenuación sublineal de la relevancia de documentos 
+antiguos a través de $P(d)$, favoreciendo información más reciente sin eliminar 
+completamente documentos históricos potencialmente relevantes.
 
 %--------------------------------------------------
 \section{Expansión de Consultas}
