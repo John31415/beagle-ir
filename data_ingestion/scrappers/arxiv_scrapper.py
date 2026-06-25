@@ -62,9 +62,6 @@ class ArxivScrapper:
             urls (list[tuple[str, str]]): list of tuples (Field name, URL)
             top_k (int, optional): number of papers to download. Defaults to 10.
             corpus_path (str, optional): path of the corpus file parent. Defaults to "..".
-
-        Returns:
-            _type_: _description_
         """
 
         print("Arxiv Scrapper Starting")
