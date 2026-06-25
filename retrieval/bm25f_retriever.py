@@ -4,7 +4,7 @@ import os
 from utils.text_processor import TextPreprocessor
 from whoosh.qparser import MultifieldParser, OrGroup
 
-def bm25f_retriever(query: str, top_n_chunks = 100, relative_threshold = 0.9) -> list[tuple[str, str]]:
+def bm25f_retriever(query: str, top_n_chunks = 100, relative_threshold = 0.9) -> list[tuple[str, str, int]]:
     """Search de top_n_chunks that satisfy the query
 
     Args:
@@ -41,5 +41,4 @@ def bm25f_retriever(query: str, top_n_chunks = 100, relative_threshold = 0.9) ->
         score_threshold = scored_hits[0][2] * relative_threshold
         filtered = [(chunk_hash, pdf_hash, score) for (chunk_hash, pdf_hash, score) in scored_hits if score >= score_threshold]
         filtered.sort(key = lambda x: x[2], reverse = True)
-        pdf_hashes = [(chunk_hash, pdf_hash) for (chunk_hash, pdf_hash, _) in filtered[:top_n_chunks]]
-    return pdf_hashes
+    return filtered[:top_n_chunks]

@@ -13,7 +13,7 @@ def expand_query_dense(query: str, k = 5, similarity_threshold = 0.70, alpha = 1
         return q_vec
     chunk_vecs = []
     sims = []
-    for (chunk_hash, _) in retrieved:
+    for (chunk_hash, _, _) in retrieved:
         d_vec = get_chunk_embedding(chunk_hash)
         sim = float(np.dot(q_vec, d_vec))
         if sim >= similarity_threshold:

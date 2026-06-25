@@ -3,7 +3,7 @@ import os
 import pickle
 from retrieval.utils.dense_utils import build_query_vector
 
-def dense_retriever(query: str, vector = None, top_n_chunks = 100, chunk_similarity_threshold = 0.5) -> list[tuple[str, str]]:
+def dense_retriever(query: str, vector = None, top_n_chunks = 100, chunk_similarity_threshold = 0.5) -> list[tuple[str, str, int]]:
     """Search chunks that semantically match the query
 
     Returns:
@@ -24,4 +24,4 @@ def dense_retriever(query: str, vector = None, top_n_chunks = 100, chunk_similar
             chunk_candidates.append((metadata[idx]["chunk_hash"], metadata[idx]["pdf_hash"], score))
     filtered = [(chunk_hash, pdf_hash, score) for (chunk_hash, pdf_hash, score) in chunk_candidates]
     filtered.sort(key = lambda x: x[2], reverse = True)
-    return [(chunk_hash, pdf_hash) for (chunk_hash, pdf_hash, _) in filtered[:top_n_chunks]]
+    return filtered[:top_n_chunks]
