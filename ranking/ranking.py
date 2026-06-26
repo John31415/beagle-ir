@@ -30,7 +30,7 @@ class Ranker:
         rrf_match = rrf_fusion([bm25f_chunks, dense_chunks], apply_date_penalty=False)
         return [(d, chunk2score[d]) for d in rrf_match]
 
-    def pdf_ranker(self, rank_limit=20, active_web_search=True) -> list[str]:
+    def pdf_ranker(self, rank_limit=10, active_web_search=True) -> list[str]:
         s = set()
         rank = []
         pdf2score = defaultdict(float)
