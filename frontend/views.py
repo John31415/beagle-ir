@@ -1,8 +1,15 @@
+import uuid
 from datetime import datetime
 from html import escape
 from pathlib import Path
 import streamlit as st
-from backend_controller.backend_controller import get_recommendations, rag_controller, retrieval_controller
+from backend_controller.backend_controller import (
+    add_event,
+    get_recommendations,
+    rag_controller,
+    refine_results,
+    retrieval_controller,
+)
 from frontend.utils.pdf_utils import display_cropped_pdf, get_document_name, get_download_payload, resolve_document_path
 from theme import render_empty_state, render_hero_panel, render_query_summary, render_section_intro
 import markdown
@@ -14,6 +21,7 @@ def initialize_state() -> None:
         "retrieval_last_query": "",
         "retrieval_has_run": False,
         "retrieval_error": "",
+        "retrieval_query_id": "",
         "recommendation_results": [],
         "recommendations_loaded": False,
         "recommendations_dirty": True,
@@ -170,6 +178,7 @@ def render_search_page(project_root: Path) -> None:
             st.session_state.retrieval_error = "Please type a query before searching."
         else:
             _reset_preview_state("search")
+            _reset_feedback_state("search")
             with st.spinner("Searching the corpus..."):
                 try:
                     documents = _unique_documents(retrieval_controller(cleaned_query))
@@ -177,12 +186,14 @@ def render_search_page(project_root: Path) -> None:
                     st.session_state.retrieval_last_query = cleaned_query
                     st.session_state.retrieval_has_run = True
                     st.session_state.retrieval_error = ""
+                    st.session_state.retrieval_query_id = str(uuid.uuid4())
                     st.session_state.recommendations_dirty = True
                 except Exception as exc:
                     st.session_state.retrieval_results = []
                     st.session_state.retrieval_last_query = cleaned_query
                     st.session_state.retrieval_has_run = True
                     st.session_state.retrieval_error = f"Search failed: {exc}"
+                    st.session_state.retrieval_query_id = ""
     if st.session_state.retrieval_error:
         st.error(st.session_state.retrieval_error)
     if st.session_state.retrieval_has_run and st.session_state.retrieval_last_query:
@@ -192,12 +203,14 @@ def render_search_page(project_root: Path) -> None:
             "documents returned",
         )
     if st.session_state.retrieval_results:
+        _render_refine_results_button(project_root)
         render_document_list(
             st.session_state.retrieval_results,
             section_key="search",
             project_root=project_root,
         )
     elif st.session_state.retrieval_has_run and not st.session_state.retrieval_error:
+        _render_refine_results_button(project_root)
         render_empty_state(
             "No documents matched this query",
             "Try broader keywords, a different phrasing, or a shorter query.",
@@ -266,6 +279,7 @@ def render_document_list(
     section_key: str,
     project_root: Path,
 ) -> None:
+    show_feedback = section_key == "search"
     for index, document_path in enumerate(_unique_documents(documents), start=1):
         resolved_path = resolve_document_path(project_root, document_path)
         preview_key = _preview_key(section_key, document_path)
@@ -294,7 +308,12 @@ def render_document_list(
             unsafe_allow_html=True,
         )
         size_in_mb = resolved_path.stat().st_size / (1024 * 1024)
-        preview_col, download_col, spacer_col = st.columns([1.15, 1.15, 3.7])
+        if show_feedback:
+            preview_col, download_col, spacer_col, feedback_col = st.columns(
+                [1.0, 1.0, 2.6, 1.1]
+            )
+        else:
+            preview_col, download_col, spacer_col = st.columns([1.15, 1.15, 3.7])
         with preview_col:
             if size_in_mb < 1.5:
                 if st.button(
@@ -303,6 +322,8 @@ def render_document_list(
                     use_container_width=True,
                 ):
                     st.session_state[preview_key] = not is_preview_open
+                    if not is_preview_open:
+                        _emit_event(section_key, document_path, "preview")
                     st.rerun()
             else:
                 st.button("No Preview", disabled=True, key=f"preview_disabled::{section_key}::{index}", use_container_width=True)
@@ -316,21 +337,95 @@ def render_document_list(
                     use_container_width=True,
                 )
             else:
-                st.download_button(
+                if st.download_button(
                     "Download",
                     data=download_payload,
                     file_name=document_path,
                     mime="application/pdf",
                     key=f"download::{section_key}::{index}",
                     use_container_width=True,
-                )
+                ):
+                    _emit_event(section_key, document_path, "download")
         with spacer_col:
             if resolved_path.exists():
                 st.caption(f"Stored at: {resolved_path.relative_to(project_root)}")
             else:
                 st.caption("This file path is not currently available on disk.")
+        if show_feedback:
+            feedback_key = _feedback_key(section_key, document_path)
+            current_feedback = st.session_state.get(feedback_key)
+            with feedback_col:
+                with st.container(key=f"fb-pair::{section_key}::{index}"):
+                    like_inner_col, dislike_inner_col = st.columns([1, 1])
+                    with like_inner_col:
+                        is_liked = current_feedback == "relevant"
+                        like_state = "fb-active-like" if is_liked else "fb-idle-like"
+                        if st.button(
+                            "▲",
+                            key=f"{like_state}::{section_key}::{index}",
+                            help="Relevant",
+                        ):
+                            if is_liked:
+                                st.session_state[feedback_key] = None
+                            else:
+                                st.session_state[feedback_key] = "relevant"
+                                _emit_event(section_key, document_path, "relevant")
+                            st.rerun()
+                    with dislike_inner_col:
+                        is_disliked = current_feedback == "irrelevant"
+                        dislike_state = "fb-active-dislike" if is_disliked else "fb-idle-dislike"
+                        if st.button(
+                            "▽",
+                            key=f"{dislike_state}::{section_key}::{index}",
+                            help="Irrelevant",
+                        ):
+                            if is_disliked:
+                                st.session_state[feedback_key] = None
+                            else:
+                                st.session_state[feedback_key] = "irrelevant"
+                                _emit_event(section_key, document_path, "irrelevant")
+                            st.rerun()
         if st.session_state.get(preview_key, False):
             display_cropped_pdf(resolved_path)
+
+def _render_refine_results_button(project_root: Path) -> None:
+    if not st.session_state.retrieval_has_run or not st.session_state.retrieval_last_query:
+        return
+    refine_col, _spacer = st.columns([0.85, 4.55])
+    with refine_col:
+        if st.button(
+            "↻ Refine results",
+            key="refine_results_button",
+        ):
+            _reset_preview_state("search")
+            _reset_feedback_state("search")
+            with st.spinner("Refining results..."):
+                try:
+                    documents = _unique_documents(
+                        refine_results(st.session_state.retrieval_last_query)
+                    )
+                    st.session_state.retrieval_results = documents
+                    st.session_state.retrieval_error = ""
+                    st.session_state.retrieval_query_id = str(uuid.uuid4())
+                    st.session_state.recommendations_dirty = True
+                except Exception as exc:
+                    st.session_state.retrieval_error = f"Refine failed: {exc}"
+            st.rerun()
+
+def _emit_event(section_key: str, document_path: str, event_type: str) -> None:
+    if section_key != "search":
+        return
+    event = {
+        "query_id": st.session_state.get("retrieval_query_id", ""),
+        "query_text": st.session_state.get("retrieval_last_query", ""),
+        "pdf_id": document_path,
+        "timestamp": datetime.now(),
+        "event_type": event_type,
+    }
+    try:
+        add_event(event)
+    except Exception:
+        pass
 
 def _build_message(role: str, content: str) -> dict[str, str]:
     return {
@@ -388,8 +483,17 @@ def _load_recommendations(force: bool = False) -> None:
 def _preview_key(section_key: str, document_path: str) -> str:
     return f"preview::{section_key}::{document_path}"
 
+def _feedback_key(section_key: str, document_path: str) -> str:
+    return f"feedback::{section_key}::{document_path}"
+
 def _reset_preview_state(section_key: str) -> None:
     prefix = f"preview::{section_key}::"
+    for key in list(st.session_state.keys()):
+        if key.startswith(prefix):
+            del st.session_state[key]
+
+def _reset_feedback_state(section_key: str) -> None:
+    prefix = f"feedback::{section_key}::"
     for key in list(st.session_state.keys()):
         if key.startswith(prefix):
             del st.session_state[key]

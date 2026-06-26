@@ -364,9 +364,9 @@ div.block-container {
 }
 
 /* 1. Estilo base para todos los botones */
-div[data-testid="stButton"] > button,
-div[data-testid="stDownloadButton"] > button,
-div[data-testid="stFormSubmitButton"] > button {
+div[data-testid="stButton"] button[data-testid="stBaseButton-secondary"],
+div[data-testid="stDownloadButton"] button,
+div[data-testid="stFormSubmitButton"] button {
     min-height: 2.75rem !important;
     border-radius: 999px !important;
     border: 1px solid var(--line) !important;
@@ -377,9 +377,9 @@ div[data-testid="stFormSubmitButton"] > button {
 }
 
 /* 2. Hover general (Botones secundarios) */
-div[data-testid="stButton"] > button:hover,
-div[data-testid="stDownloadButton"] > button:hover,
-div[data-testid="stFormSubmitButton"] > button:hover {
+div[data-testid="stButton"] button[data-testid="stBaseButton-secondary"]:hover,
+div[data-testid="stDownloadButton"] button:hover,
+div[data-testid="stFormSubmitButton"] button:hover {
     border-color: var(--accent) !important;
     color: var(--accent) !important;
     background: white !important;
@@ -387,18 +387,18 @@ div[data-testid="stFormSubmitButton"] > button:hover {
 }
 
 /* 3. Botón de SEARCH (Primary) - Estilo Normal */
-div[data-testid="stButton"] > button[kind="primary"],
-div[data-testid="stFormSubmitButton"] > button[kind="primary"],
-div[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"] {
+div[data-testid="stButton"] button[data-testid="stBaseButton-primary"],
+div[data-testid="stFormSubmitButton"] button[data-testid="stBaseButton-primary"],
+div[data-testid="stFormSubmitButton"] button[data-testid="stBaseButton-primaryFormSubmit"] {
     background: linear-gradient(135deg, var(--accent), var(--accent-deep)) !important;
     color: #ffffff !important;
     border: none !important;
 }
 
 /* 4. Botón de SEARCH (Primary) - Estilo HOVER (Esto evita el Rojo) */
-div[data-testid="stButton"] > button[kind="primary"]:hover,
-div[data-testid="stFormSubmitButton"] > button[kind="primary"]:hover,
-div[data-testid="stFormSubmitButton"] > button[kind="primaryFormSubmit"]:hover {
+div[data-testid="stButton"] button[data-testid="stBaseButton-primary"]:hover,
+div[data-testid="stFormSubmitButton"] button[data-testid="stBaseButton-primary"]:hover,
+div[data-testid="stFormSubmitButton"] button[data-testid="stBaseButton-primaryFormSubmit"]:hover {
     background: var(--accent-deep) !important; /* Un tono más oscuro */
     color: #ffffff !important;
     box-shadow: 0 8px 20px rgba(109, 40, 217, 0.3) !important;
@@ -572,6 +572,55 @@ section[data-testid="stChatInput"] button:hover {
 [data-testid="stChatInput"]::before,
 section[data-testid="stChatInput"]::before {
     display: none !important;
+}
+
+/* --- FEEDBACK BUTTONS (Like / Dislike) --- */
+/* Confirmado por inspección del DOM real: Streamlit traduce la key del
+   propio st.button (ej. "like::search::1") en una clase
+   "st-key-like--search--1" sobre su stElementContainer padre (los "::" se
+   convierten en "--"). Le damos a cada botón una key que incluye el
+   estado (idle/active) y apuntamos el CSS a esa clase real. */
+
+/* Par like/dislike: reduce el gap entre ellos y los pega a la derecha,
+   sin afectar el gap global de st.columns en el resto de la app. */
+div[class*="st-key-fb-pair"] div[data-testid="stHorizontalBlock"] {
+    gap: 0.3rem !important;
+    justify-content: flex-end !important;
+}
+
+div[class*="st-key-fb-pair"] div[data-testid="stColumn"] {
+    width: fit-content !important;
+    min-width: fit-content !important;
+    flex: 0 0 auto !important;
+}
+
+/* Forma circular + símbolo más grande, aplica a idle y active por igual */
+div[class*="st-key-fb-"] button[data-testid="stBaseButton-secondary"] {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    min-height: 2.75rem !important;
+    min-width: 2.75rem !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+}
+
+div[class*="st-key-fb-"] button[data-testid="stBaseButton-secondary"] p {
+    font-size: 1.3rem !important;
+    line-height: 1 !important;
+}
+
+div[class*="st-key-fb-active-"] button[data-testid="stBaseButton-secondary"] {
+    border-color: var(--accent) !important;
+    color: var(--accent) !important;
+    background: var(--accent-soft) !important;
+    box-shadow: 0 8px 20px rgba(109, 40, 217, 0.18) !important;
+}
+
+div[class*="st-key-fb-active-"] button[data-testid="stBaseButton-secondary"]:hover {
+    border-color: var(--accent) !important;
+    color: var(--accent-deep) !important;
+    background: var(--accent-soft) !important;
+    transform: translateY(-1px) !important;
 }
 
 div[data-testid="stSpinner"] > div {
