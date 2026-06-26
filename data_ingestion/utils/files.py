@@ -58,12 +58,13 @@ def delete_file(folder_path: str, file_name: str) -> bool:
         return False
     
 def match_url2pdf(folder_path: str, urls_file_path: str, store_path: str):
-    """Match URLs and PDF files downlaoded, then stores the list of URLs matched.
+    """Match URLs and PDF files downloaded, then stores the list of URLs matched.
     """
 
     from utils.hash import hash_str
     import os
 
+    os.makedirs(folder_path, exist_ok=True)
     urls = []
     with open(urls_file_path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -83,6 +84,8 @@ def match_url2pdf(folder_path: str, urls_file_path: str, store_path: str):
             else:
                 file_path = os.path.join(folder_path, filename)
                 os.remove(file_path)
+    dir_to_create = os.path.dirname(os.path.abspath(store_path))
+    os.makedirs(dir_to_create, exist_ok=True)
     with open(store_path, 'w', encoding='utf-8') as f:
         for url in matched_urls:
             f.write(url + '\n')

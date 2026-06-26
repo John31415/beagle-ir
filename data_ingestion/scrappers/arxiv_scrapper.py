@@ -54,7 +54,7 @@ class ArxivScrapper:
             if download_file(corpus_path, url, crawl_delay):
                 store_url_corpus(url, "downloaded_urls.txt")
 
-    def arxiv_scrapper(self, robots_parser: RobotsParser, urls: list[tuple[str, str]], top_k: int, corpus_path: str):
+    def arxiv_scrapper(self, robots_parser: RobotsParser, urls: list[tuple[str, str]], top_k: int, corpus_path: str, max_links: int):
         """Download the top_k most recent papers from each field obtained from arxiv_crawler
 
         Args:
@@ -74,4 +74,6 @@ class ArxivScrapper:
             pdf_urls += field_pdf_urls
             for field_url in field_pdf_urls:
                 store_url_corpus(field_url, "corpus_urls.txt")
-        self._download_pdfs(corpus_path, "corpus_urls.txt", crawl_delay)
+            if len(pdf_urls) >= max_links:
+                break
+        self._download_pdfs(corpus_path, "corpus_urls.txt", crawl_delay, max_links)
