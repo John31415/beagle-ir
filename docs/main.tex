@@ -364,6 +364,39 @@ generando una nueva representación más informada del contexto de búsqueda.
     \label{fig:query_expansion}
 \end{figure}
 
+\section{Retroalimentación}
+
+El sistema incorpora un módulo de retroalimentación de relevancia basado en interacciones 
+explícitas e implícitas del usuario sobre los documentos recuperados 
+(descarga, previsualización, marcado relevante/irrelevante). Cada interacción 
+se traduce en una señal numérica de relevancia mediante una función de puntuación.
+
+A partir de estas puntuaciones, los documentos se dividen en dos conjuntos: 
+$D^+$ para señales positivas y $D^-$ para señales negativas. 
+Para cada documento $d_i$ se extraen las dos primeras páginas de su PDF y se vectorizan 
+mediante el modelo de embeddings, obteniendo una representación $\mathbf{v}_i \in \mathbb{R}^n$. 
+Con estos vectores se construyen dos centroides ponderados, donde el peso de cada documento 
+es el valor absoluto de su puntuación \eqref{eq:rocchio}.
+
+\begin{equation}
+\mathbf{c}^{\pm} = \frac{\sum_{d_i \in D^{\pm}} |s_i| \cdot \mathbf{v}_i}{\sum_{d_i \in D^{\pm}} |s_i|}
+\label{eq:rocchio}
+\end{equation}
+
+La consulta original $\mathbf{q}$ se ajusta mediante el algoritmo de Rocchio \cite{rocchio1971relevance}, 
+desplazándola hacia el centroide positivo y alejándola del negativo \eqref{eq:rocchio_w}.
+
+\begin{equation}
+\mathbf{q}' = \alpha\,\mathbf{q} + \beta\,\mathbf{c}^{+} - \gamma\,\mathbf{c}^{-}
+\label{eq:rocchio_w}
+\end{equation}
+
+Donde los parámetros $\alpha$, $\beta$ y $\gamma$ controlan 
+respectivamente el peso de la consulta original, la atracción hacia documentos relevantes 
+y la repulsión de documentos irrelevantes. El vector resultante $\mathbf{q}'$ se normaliza 
+y se emplea para lanzar una nueva consulta al módulo de recuperación, produciendo 
+una lista \textit{re-rankeada} de documentos alineada con las preferencias observadas del usuario.
+
 %--------------------------------------------------
 \section{Módulo RAG}
 
@@ -566,6 +599,12 @@ Proceedings of SIGIR, 2009.
 Lavrenko, V., Croft, W. B.:
 Relevance Based Language Models.
 SIGIR, 2001.
+
+\bibitem{rocchio1971relevance}
+Rocchio, J. J.:
+Relevance Feedback in Information Retrieval.
+In: Salton, G. (ed.) The SMART Retrieval System: Experiments in Automatic Document Processing,
+pp. 313--323. Prentice-Hall, Englewood Cliffs, NJ, 1971.
 
 \bibitem{rag}
 Lewis, P. et al.:
